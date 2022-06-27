@@ -1,21 +1,52 @@
-#include <stdio.h>
+#include "misaligned.h"
 #include <assert.h>
 
-int printColorMap() {
-    const char* majorColor[] = {"White", "Red", "Black", "Yellow", "Violet"};
-    const char* minorColor[] = {"Blue", "Orange", "Green", "Brown", "Slate"};
-    int i = 0, j = 0;
-    for(i = 0; i < 5; i++) {
-        for(j = 0; j < 5; j++) {
-            printf("%d | %s | %s\n", i * 5 + j, majorColor[i], minorColor[i]);
+
+void referenceManual()
+{
+    int majorIndex = 0;
+    int minorIndex = 0;
+    int colorPairNumber = 0;
+    int colorPairLength = 0;
+    for(majorIndex = 0; majorIndex < numberOfMajorColors; majorIndex++) 
+    {
+        for(minorIndex = 1; minorIndex <= numberOfMinorColors; minorIndex++) 
+        {
+            colorPairLength = sprintf(&correctColorMap[colorPairNumber], "%d\t|%s\t|%s\n", majorIndex * numberOfMajorColors + minorIndex, majorColor[majorIndex], minorColor[minorIndex-1]);
+            colorPairNumber = colorPairNumber + colorPairLength;
         }
     }
-    return i * j;
+}
+
+int printColorMap() 
+{
+    int majorIndex = 0;
+    int minorIndex = 0;
+    int colorPairNumber = 0;
+    int colorPairLength = 0;
+    for(majorIndex = 0; majorIndex < numberOfMajorColors; majorIndex++) 
+    {
+        for(minorIndex = 0; minorIndex < numberOfMinorColors; minorIndex++) 
+        {
+            colorPairLength = sprintf(&colorMap[colorPairNumber], "%d |%s |%s\n", (majorIndex * numberOfMajorColors + minorIndex)+1, majorColor[majorIndex], minorColor[minorIndex]);
+            colorPairNumber = colorPairNumber + colorPairLength;
+        }
+    }
+    return majorIndex * minorIndex;
+}
+
+void testAlignment()
+{
+    int result;
+    referenceManual();
+    result = strcmp(&correctColorMap[0], &colorMap[0]);
+    assert( result == 0);     
 }
 
 int main() {
     int result = printColorMap();
     assert(result == 25);
+    testAlignment();
     printf("All is well (maybe!)\n");
     return 0;
 }
